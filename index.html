@@ -8,11 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #171614;
-    --olive: #171614;
-    --olive-raised: #201F1C;
+    --bg: #3C4147;
+    --olive: #3C4147;
+    --olive-raised: #474D53;
     --grey-green: #1C1B19;
-    --quartz: #9A968C;
+    --quartz: #A8ACAF;
     --bone: #ECE8DE;
     --amber: #D9AE2E;
     --gold: #C9A93F;
@@ -30,7 +30,7 @@
 
   body{
     background:
-      radial-gradient(ellipse at top, #232220 0%, var(--bg) 55%),
+      radial-gradient(ellipse at top, #4A5158 0%, var(--bg) 55%),
       var(--bg);
     color: var(--bone);
     font-family: 'IBM Plex Mono', monospace;
@@ -43,7 +43,7 @@
   .header{
     max-width: 1100px;
     margin: 0 auto 36px;
-    border-bottom: 1px solid rgba(154,150,140,0.25);
+    border-bottom: 1px solid rgba(168,172,175,0.25);
     padding-bottom: 24px;
   }
 
@@ -119,7 +119,7 @@
 
   .search-bar{
     background: var(--olive-raised);
-    border: 1px solid rgba(154,150,140,0.35);
+    border: 1px solid rgba(168,172,175,0.35);
     border-radius: var(--radius);
     display:flex;
     align-items:center;
@@ -145,7 +145,7 @@
     padding: 14px 4px;
     letter-spacing: 0.01em;
   }
-  #searchInput::placeholder{ color: rgba(154,150,140,0.65); }
+  #searchInput::placeholder{ color: rgba(168,172,175,0.65); }
 
   #clearBtn{
     background: none;
@@ -156,7 +156,7 @@
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     letter-spacing: 0.08em;
-    border-left: 1px solid rgba(154,150,140,0.25);
+    border-left: 1px solid rgba(168,172,175,0.25);
     display:none;
   }
   #clearBtn:hover{ color: var(--bone); }
@@ -208,7 +208,7 @@
 
   .beam{
     height: 10px;
-    background: linear-gradient(180deg, #1F3D44, #0E2126);
+    background: linear-gradient(180deg, #4A5158, #23272B);
     border-radius: 2px;
     position: relative;
     margin: 4px 0 18px;
@@ -221,7 +221,7 @@
     width:6px; height:6px;
     border-radius:50%;
     background: var(--shadow);
-    box-shadow: inset 0 0 0 1px rgba(154,150,140,0.4);
+    box-shadow: inset 0 0 0 1px rgba(168,172,175,0.4);
   }
   .beam::before{ left: 14px; }
   .beam::after{ right: 14px; }
@@ -288,10 +288,10 @@
   /* the lid */
   .tote-lid{
     background: linear-gradient(160deg, var(--lid-yellow-light) 0%, var(--lid-yellow-dark) 100%);
-    padding: 14px 16px 12px;
+    padding: 9px 16px 7px;
     display:flex;
     justify-content:space-between;
-    align-items:flex-start;
+    align-items:center;
     position: relative;
     transition: filter 0.22s ease;
   }
@@ -305,24 +305,15 @@
 
   .tote-id{
     font-family:'Oswald', sans-serif;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
     color: var(--tote-black-deep);
-    line-height: 0.9;
+    line-height: 1;
     letter-spacing: 0.01em;
-  }
-  .tote-id span{
-    display:block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: rgba(28,25,15,0.65);
-    font-weight: 600;
-    margin-bottom: 3px;
   }
 
   .latch{
-    width: 28px; height: 28px;
+    width: 24px; height: 24px;
     border: 1.5px solid rgba(28,25,15,0.55);
     border-radius: 50%;
     display:flex;
@@ -333,7 +324,7 @@
   }
   .latch::before{
     content:"";
-    width: 10px; height: 2px;
+    width: 9px; height: 2px;
     background: rgba(28,25,15,0.55);
     transition: background 0.3s ease;
   }
@@ -407,7 +398,7 @@
 
   .modal{
     background: var(--olive-raised);
-    border: 1px solid rgba(154,150,140,0.3);
+    border: 1px solid rgba(168,172,175,0.3);
     border-radius: var(--radius);
     max-width: 560px;
     width: 100%;
@@ -424,7 +415,7 @@
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
-    border-bottom: 1px solid rgba(154,150,140,0.25);
+    border-bottom: 1px solid rgba(168,172,175,0.25);
     padding-bottom: 16px;
     margin-bottom: 16px;
   }
@@ -474,7 +465,7 @@
     align-items:center;
     gap: 10px;
     padding: 8px 0;
-    border-bottom: 1px dashed rgba(154,150,140,0.18);
+    border-bottom: 1px dashed rgba(168,172,175,0.18);
     font-size: 13.5px;
     color: var(--bone);
     line-height: 1.4;
@@ -523,7 +514,7 @@
     width: 42px;
     text-align:center;
     background: var(--olive);
-    border: 1px solid rgba(154,150,140,0.35);
+    border: 1px solid rgba(168,172,175,0.35);
     border-radius: 2px;
     color: var(--bone);
     font-family: 'IBM Plex Mono', monospace;
@@ -572,7 +563,7 @@
   .modal-footer{
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(154,150,140,0.2);
+    border-top: 1px solid rgba(168,172,175,0.2);
     font-size: 10px;
     color: var(--quartz);
     letter-spacing: 0.06em;
@@ -663,24 +654,24 @@
 
   const TOTES = [
     // Row 4 — top shelf, lightest — display IDs 1-4 (top-left to top-right)
-    { id:1, row:4, tier:'light', title:'Spices & Seasonings', items:[
+    { id:1, row:1, tier:'light', title:'Spices & Seasonings', items:[
       {qty:3,name:'Salt'},{qty:2,name:'Coarse kosher salt'},{qty:2,name:'Oregano leaves'},
       {qty:2,name:'Assorted spices'},{qty:1,name:'Himalayan pink salt'},{qty:1,name:'Iodized salt'},
       {qty:1,name:'Garlic powder'},{qty:1,name:'Onion powder'},{qty:1,name:'Chili powder'},
       {qty:1,name:'Paprika'},{qty:1,name:'Lemon pepper spice'},{qty:1,name:'Turkey gravy packet'}
     ]},
-    { id:2, row:4, tier:'light', title:'Powdered Dairy/Egg Staples & Evaporated Milk', items:[
+    { id:2, row:1, tier:'light', title:'Powdered Dairy/Egg Staples & Evaporated Milk', items:[
       {qty:10,name:'Evaporated milk'},{qty:4,name:'Non-fat dried milk (lbs)'},{qty:1,name:'Real butter powder'},
       {qty:1,name:'Whole egg powder'},{qty:1,name:'Chocolate milk powder'},{qty:1,name:'Cheddar cheese powder'},
       {qty:1,name:'Sour cream powder'},{qty:1,name:'Half and half (powdered)'}
     ]},
-    { id:3, row:4, tier:'light', title:'Coffee & Drink Mixes', items:[
+    { id:3, row:1, tier:'light', title:'Coffee & Drink Mixes', items:[
       {qty:5,name:'Instant coffee'},{qty:3,name:'Keurig cups (double chocolate, decaf, caramel macchiato)'},
       {qty:2,name:'Nesquik'},{qty:2,name:'Fruit punch mix'},{qty:1,name:'Powdered coffee creamer'},
       {qty:1,name:'Lipton tea bags'},{qty:1,name:'Tea bags (assorted)'},{qty:1,name:'Hot cocoa powder'},
       {qty:1,name:'Pink lemonade packets'},{qty:1,name:'Orange gelatin'}
     ]},
-    { id:4, row:4, tier:'light', title:'Protein Bars, Snacks, Oatmeal, Pudding & Misc', items:[
+    { id:4, row:1, tier:'light', title:'Protein Bars, Snacks, Oatmeal, Pudding & Misc', items:[
       {qty:47,name:'Protein bars (assorted flavors)'},{qty:1,name:'Unlabeled snack bag'},
       {qty:42,name:'Instant oatmeal packets'},{qty:3,name:'Rolled oats (14oz packs)'},
       {qty:36,name:'Pudding cups'},{qty:2,name:'Collagen peptides'},{qty:2,name:'Assorted candy (bags)'},
@@ -695,84 +686,84 @@
     ]},
 
     // Row 3 — display IDs 5-8
-    { id:5, row:3, tier:'medium', title:'Nut Butters, Jams & Spreads', items:[
+    { id:5, row:2, tier:'medium', title:'Nut Butters, Jams & Spreads', items:[
       {qty:13,name:'Peanut butter'},{qty:4,name:'Strawberry jam'},{qty:2,name:'Strawberry preserves'},
       {qty:1,name:'Peanut butter powder'},{qty:1,name:'Raspberry preserves'},{qty:1,name:'Black fig jam'}
     ]},
-    { id:6, row:3, tier:'medium', title:'Ramen, Noodles & Mac and Cheese', items:[
+    { id:6, row:2, tier:'medium', title:'Ramen, Noodles & Mac and Cheese', items:[
       {qty:25,name:'Kraft mac and cheese'},{qty:36,name:'Ramen packs'},{qty:4,name:'Ramen cups'},
       {qty:8,name:'Instant mashed potato pouches'},{qty:1,name:'Instant mashed potato cup'},
       {qty:8,name:'Chow mein teriyaki beef noodles'},{qty:5,name:'Skinny noodles (shirataki)'},
       {qty:1,name:'Dried ramen toppings'},{qty:1,name:'Asian-style crunchy noodles'},
       {qty:1,name:'Microwave mac and cheese cup'}
     ]},
-    { id:7, row:3, tier:'medium', title:'Chili, Prepared Meals & Pop-Tarts', items:[
+    { id:7, row:2, tier:'medium', title:'Chili, Prepared Meals & Pop-Tarts', items:[
       {qty:24,name:'Pop-Tarts'},{qty:13,name:'Chef Boyardee'},{qty:2,name:'Chili'},{qty:1,name:'Coconut milk'}
     ]},
-    { id:8, row:3, tier:'medium', title:'Baking Supplies', items:[
+    { id:8, row:2, tier:'medium', title:'Baking Supplies', items:[
       {qty:1,name:'All-purpose flour'},{qty:1,name:'White sugar'},{qty:1,name:'Light brown sugar'},
       {qty:1,name:'Sugar packets (bag)'},{qty:2,name:'Baking soda'},{qty:1,name:'Baking powder'}
     ]},
 
     // Row 2 — display IDs 9-12
-    { id:9, row:2, tier:'medium', title:'Canned Fruit', items:[
+    { id:9, row:3, tier:'medium', title:'Canned Fruit', items:[
       {qty:24,name:'Diced peaches'},{qty:20,name:'Cherry mixed fruit cups'},{qty:12,name:'Mandarin oranges'},
       {qty:1,name:'Pineapple chunks'}
     ]},
-    { id:10, row:2, tier:'medium', title:'Tomato Products & Pasta Sauces', items:[
+    { id:10, row:3, tier:'medium', title:'Tomato Products & Pasta Sauces', items:[
       {qty:12,name:'Diced tomatoes'},{qty:12,name:'Tomato sauce'},{qty:9,name:'White sauce'},{qty:8,name:'Rotel'},
       {qty:5,name:'Red sauce'},{qty:2,name:'Alfredo sauce'},{qty:1,name:'Mild salsa'},
       {qty:1,name:'Organic tomato powder'}
     ]},
-    { id:11, row:2, tier:'medium', title:'Condiments, Oils & Sweeteners', items:[
+    { id:11, row:3, tier:'medium', title:'Condiments, Oils & Sweeteners', items:[
       {qty:200,name:'Mayonnaise pouches'},{qty:1,name:'Mayonnaise (jar)'},{qty:7,name:'Honey'},
       {qty:7,name:'Apple sauce'},{qty:6,name:'Sloppy joe sauce'},{qty:3,name:'BBQ sauce'},
       {qty:3,name:'Maple syrup'},{qty:2,name:'Ranch dressing'},{qty:2,name:'A1 steak sauce'},
       {qty:1,name:'Apple cider vinegar'},{qty:1,name:'Taco Bell sauce'},{qty:1,name:'Parmesan cheese'},
       {qty:1,name:'Coconut oil'},{qty:1,name:'Avocado oil'},{qty:1,name:'Olive oil'},{qty:1,name:'Vanilla extract'}
     ]},
-    { id:12, row:2, tier:'medium', title:'Dry Pasta, Rice & Grains', items:[
+    { id:12, row:3, tier:'medium', title:'Dry Pasta, Rice & Grains', items:[
       {qty:1,name:'Pasta (unspecified quantity)'},{qty:4,name:'Pasta'},{qty:4,name:'Jasmine white rice (lbs)'},
       {qty:2,name:'Basmati rice'},{qty:1,name:'White rice'},{qty:1,name:'Instant rice'},{qty:1,name:'Italian rice'},
       {qty:1,name:'Dry black beans (lb)'},{qty:1,name:'Dry light red kidney beans (lb)'}
     ]},
 
     // Row 1 — bottom shelf, heaviest — display IDs 13-16 (bottom-left to bottom-right)
-    { id:13, row:1, tier:'heavy', title:'Canned Meats & Fish', items:[
+    { id:13, row:4, tier:'heavy', title:'Canned Meats & Fish', items:[
       {qty:70,name:'Chicken breast in water'},{qty:30,name:'Tuna'},{qty:4,name:'Roast beef'},
       {qty:3,name:'Sardines'},{qty:1,name:'Pink salmon'}
     ]},
-    { id:14, row:1, tier:'heavy', title:'Canned Soups & Broths', items:[
+    { id:14, row:4, tier:'heavy', title:'Canned Soups & Broths', items:[
       {qty:18,name:'Cream of mushroom soup'},{qty:8,name:'Chicken and dumplings soup'},
       {qty:8,name:'Chicken pot pie soup'},{qty:6,name:'Chicken broth'},{qty:3,name:'Beef broth'},
       {qty:3,name:'Chicken noodle soup'},{qty:1,name:'Cream of potato soup'},{qty:1,name:'Cream of chicken soup'},
       {qty:1,name:'Broccoli cheddar keto soup'},{qty:1,name:'Dried vegetable soup mix'}
     ]},
-    { id:15, row:1, tier:'heavy', title:'Canned Vegetables', items:[
+    { id:15, row:4, tier:'heavy', title:'Canned Vegetables', items:[
       {qty:20,name:'Green beans'},{qty:12,name:'Mushrooms'},{qty:12,name:'Black beans'},
       {qty:9,name:'Sliced carrots'},{qty:8,name:'Corn'},{qty:6,name:'Mixed vegetables'},
       {qty:6,name:"Bush's baked beans"},{qty:3,name:'Artichoke hearts'},{qty:2,name:'Green olives'},
       {qty:2,name:'Edamame'},{qty:1,name:'Water chestnuts'},{qty:1,name:'Black olives'},{qty:1,name:'Chickpeas'}
     ]},
-    { id:16, row:1, tier:'heavy', title:'Bottled Beverages', items:[
+    { id:16, row:4, tier:'heavy', title:'Bottled Beverages', items:[
       {qty:72,name:'Sunny D'},{qty:40,name:'Gatorade sugar sticks'},{qty:40,name:'Gatorade powder pouches'},
       {qty:1,name:'Gatorade powder (bottle)'}
     ]}
   ];
 
   const ROW_META = {
-    4: { label: 'Row 4 — Top Shelf', tier:'light', tierLabel:'Light' },
-    3: { label: 'Row 3', tier:'medium', tierLabel:'Medium' },
+    1: { label: 'Row 1 — Top Shelf', tier:'light', tierLabel:'Light' },
     2: { label: 'Row 2', tier:'medium', tierLabel:'Medium' },
-    1: { label: 'Row 1 — Bottom Shelf', tier:'heavy', tierLabel:'Heavy' }
+    3: { label: 'Row 3', tier:'medium', tierLabel:'Medium' },
+    4: { label: 'Row 4 — Bottom Shelf', tier:'heavy', tierLabel:'Heavy' }
   };
 
   const rack = document.getElementById('rack');
   const totalLines = TOTES.reduce((sum,t)=>sum+t.items.length,0);
   document.getElementById('statLines').textContent = totalLines;
 
-  // Build rack: rows rendered top(4) to bottom(1) to mirror the physical shelf
-  [4,3,2,1].forEach(rowNum=>{
+  // Build rack: rows rendered 1(top) to 4(bottom) to mirror the physical shelf
+  [1,2,3,4].forEach(rowNum=>{
     const meta = ROW_META[rowNum];
     const rowBlock = document.createElement('div');
     rowBlock.className = 'row-block';
@@ -798,7 +789,7 @@
       card.setAttribute('aria-label', `Tote ${t.id}: ${t.title}, ${t.items.length} item lines`);
       card.innerHTML = `
         <div class="tote-lid">
-          <div class="tote-id"><span>Tote</span>${String(t.id).padStart(2,'0')}</div>
+          <div class="tote-id">${String(t.id).padStart(2,'0')}</div>
           <div class="latch"></div>
         </div>
         <div class="tote-body">
