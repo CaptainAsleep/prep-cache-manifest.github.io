@@ -83,6 +83,18 @@
     line-height: 1.5;
   }
 
+  .nav-link{
+    display:inline-block;
+    margin-top: 14px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(217,174,46,0.4);
+  }
+  .nav-link:hover{ border-bottom-color: var(--amber); }
+
   .stat-row{
     display:flex;
     gap: 28px;
@@ -596,6 +608,7 @@
     <div class="eyebrow">Basement Prep — 16 Unit Array</div>
     <h1>Cache Manifest</h1>
     <p class="subhead">Full inventory of the 4×4 tote shelf. Heaviest cases sit bottom row for stability; lightest sit top. Search below to locate anything by item, tote, or category.</p>
+    <a class="nav-link" href="meals.html">Pantry Menu →</a>
     <div class="stat-row">
       <div class="stat"><span class="num">16</span><span class="label">Totes</span></div>
       <div class="stat"><span class="num" id="statLines">—</span><span class="label">Item Lines</span></div>
