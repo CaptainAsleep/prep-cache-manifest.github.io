@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pantry Menu — Basement Meal Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #3C4147;
+    --panel: #474D53;
+    --quartz: #A8ACAF;
+    --bone: #ECE8DE;
+    --amber: #D9AE2E;
+    --tote-black: #1C1B19;
+    --tote-black-deep: #121110;
+    --lid-yellow-light: #E8C55B;
+    --lid-yellow-dark: #A9821F;
+    --radius: 3px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    background: radial-gradient(ellipse at top, #4A5158 0%, var(--bg) 55%), var(--bg);
+    color: var(--bone);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    padding: 32px 20px 80px;
+  }
+
+  .wrap{ max-width: 1100px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  .header{
+    border-bottom: 1px solid rgba(168,172,175,0.25);
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+  }
+  .eyebrow{
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    color: var(--amber);
+    text-transform: uppercase;
+    font-weight: 600;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 10px;
+  }
+  .eyebrow::before{ content:""; width:22px; height:1px; background: var(--amber); }
+  h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    font-size: clamp(30px, 5vw, 52px);
+    line-height:1;
+  }
+  .subhead{
+    color: var(--quartz);
+    font-size: 13px;
+    margin-top: 10px;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+  .back-link{
+    display:inline-block;
+    margin-top: 14px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(217,174,46,0.4);
+  }
+  .back-link:hover{ border-bottom-color: var(--amber); }
+
+  /* ---------- Search + filters ---------- */
+  .search-wrap{ position: sticky; top: 14px; z-index: 30; }
+  .search-bar{
+    background: var(--panel);
+    border: 1px solid rgba(168,172,175,0.35);
+    border-radius: var(--radius);
+    display:flex;
+    align-items:center;
+    padding: 4px 4px 4px 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  }
+  .search-bar .glyph{ color: var(--amber); font-size: 15px; margin-right: 12px; }
+  #searchInput{
+    flex:1;
+    background: transparent;
+    border:none;
+    outline:none;
+    color: var(--bone);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 15px;
+    padding: 14px 4px;
+    min-width: 0;
+  }
+  #searchInput::placeholder{ color: rgba(168,172,175,0.65); }
+  #clearBtn{
+    background:none;
+    border:none;
+    color: var(--quartz);
+    cursor:pointer;
+    padding: 10px 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    border-left: 1px solid rgba(168,172,175,0.25);
+    display:none;
+  }
+  #clearBtn:hover{ color: var(--bone); }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    margin: 16px 0 6px;
+  }
+  .chip{
+    background: transparent;
+    border: 1px solid rgba(168,172,175,0.45);
+    color: var(--quartz);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .chip:hover{ color: var(--bone); border-color: var(--bone); }
+  .chip.active{
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--tote-black-deep);
+    font-weight: 700;
+  }
+
+  .status{
+    font-size: 11px;
+    color: var(--quartz);
+    letter-spacing: 0.05em;
+    margin: 8px 0 22px;
+    min-height: 14px;
+  }
+  .status .hit{ color: var(--amber); font-weight:600; }
+
+  /* ---------- Meal grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .meal{
+    background: var(--tote-black);
+    border: 1px solid rgba(0,0,0,0.4);
+    border-radius: var(--radius);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  .meal:hover{ transform: translateY(-3px); box-shadow: 0 14px 26px rgba(0,0,0,0.5); }
+
+  .meal-lid{
+    background: linear-gradient(160deg, var(--lid-yellow-light) 0%, var(--lid-yellow-dark) 100%);
+    padding: 9px 16px 7px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:relative;
+    color: var(--tote-black-deep);
+  }
+  .meal-lid::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:4px;
+    background: rgba(0,0,0,0.22);
+  }
+  .meal-type{
+    font-family:'Oswald', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .meal-totes-count{
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(28,25,15,0.7);
+  }
+
+  .meal-body{ padding: 16px 16px 18px; display:flex; flex-direction:column; flex:1; }
+
+  .meal-title{
+    font-family:'Oswald', sans-serif;
+    font-size: 21px;
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+  }
+  .meal-blurb{
+    color: var(--quartz);
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+
+  .ing-list{
+    list-style:none;
+    margin-top: 14px;
+    border-top: 1px dashed rgba(168,172,175,0.25);
+  }
+  .ing-list li{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed rgba(168,172,175,0.15);
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+  .ing-list li:last-child{ border-bottom:none; }
+  .ing-name{ flex:1; }
+
+  .tote-tag{
+    flex-shrink:0;
+    min-width: 34px;
+    text-align:center;
+    background: var(--amber);
+    color: var(--tote-black-deep);
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  .tote-tag:hover{ filter: brightness(1.12); }
+
+  .method{
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(168,172,175,0.2);
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--bone);
+  }
+  .method b{
+    color: var(--amber);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display:block;
+    margin-bottom: 4px;
+  }
+
+  mark{
+    background: var(--amber);
+    color: var(--tote-black-deep);
+    padding: 0 2px;
+    border-radius: 1px;
+  }
+
+  .empty{
+    grid-column: 1 / -1;
+    text-align:center;
+    color: var(--quartz);
+    padding: 48px 0;
+    font-size: 13px;
+  }
+
+  /* ---------- Tote key ---------- */
+  details.key{
+    margin-top: 44px;
+    background: var(--tote-black);
+    border: 1px solid rgba(0,0,0,0.4);
+    border-radius: var(--radius);
+    overflow:hidden;
+  }
+  details.key summary{
+    cursor:pointer;
+    list-style:none;
+    background: linear-gradient(160deg, var(--lid-yellow-light) 0%, var(--lid-yellow-dark) 100%);
+    color: var(--tote-black-deep);
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  details.key summary::-webkit-details-marker{ display:none; }
+  details.key summary::after{ content:"+"; font-size: 20px; line-height:1; }
+  details.key[open] summary::after{ content:"–"; }
+  .key-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 4px 20px;
+    padding: 16px;
+  }
+  .key-row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed rgba(168,172,175,0.15);
+  }
+  .key-row .tote-tag{ cursor:default; }
+  .key-row .tote-tag:hover{ filter:none; }
+
+  footer.page-footer{
+    margin-top: 50px;
+    text-align:center;
+    color: var(--quartz);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 480px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="eyebrow">Basement Prep — Meal Planner</div>
+    <h1>Pantry Menu</h1>
+    <p class="subhead">Meals built only from what's on the shelf. Every ingredient carries the number of the tote it lives in, so you know exactly which lids to pop. Tap a tote number to see every meal that uses it.</p>
+    <a class="back-link" href="index.html">← Back to the manifest</a>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-bar">
+      <span class="glyph">▸</span>
+      <input id="searchInput" type="text" placeholder="Search meals, ingredients, or a tote — e.g. &quot;tuna&quot;, &quot;tote 13&quot;" autocomplete="off">
+      <button id="clearBtn">CLEAR ✕</button>
+    </div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div class="status" id="status"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <details class="key">
+    <summary>Tote Key</summary>
+    <div class="key-grid" id="keyGrid"></div>
+  </details>
+
+  <footer class="page-footer">Pantry Menu — Rev. 1</footer>
+</div>
+
+<script>
+  const TOTE_NAMES = {
+    1:'Spices & Seasonings',
+    2:'Powdered Dairy/Egg & Evaporated Milk',
+    3:'Coffee & Drink Mixes',
+    4:'Protein Bars, Snacks, Oatmeal & Misc',
+    5:'Nut Butters, Jams & Spreads',
+    6:'Ramen, Noodles & Mac and Cheese',
+    7:'Chili, Prepared Meals & Pop-Tarts',
+    8:'Baking Supplies',
+    9:'Canned Fruit',
+    10:'Tomato Products & Pasta Sauces',
+    11:'Condiments, Oils & Sweeteners',
+    12:'Dry Pasta, Rice & Grains',
+    13:'Canned Meats & Fish',
+    14:'Canned Soups & Broths',
+    15:'Canned Vegetables',
+    16:'Bottled Beverages'
+  };
+
+  // ingredients: [name, toteNumber]
+  const MEALS = [
+    // ---------- Dinners ----------
+    { type:'dinner', name:'Chicken & Rice Bake',
+      blurb:'Comfort-casserole staple. Soup does the sauce work.',
+      ing:[['Canned chicken breast',13],['Cream of mushroom or chicken soup',14],['Jasmine rice',12],['Green beans',15],['Evaporated milk',2]],
+      how:'Stir soup, a splash of evaporated milk, and drained chicken into cooked rice. Fold in green beans, bake covered until bubbling.' },
+
+    { type:'dinner', name:'Chicken Pot Pie Skillet',
+      blurb:'Pot pie without the crust — biscuits on top instead.',
+      ing:[['Chicken pot pie soup',14],['Canned chicken breast',13],['Mixed vegetables',15],['Sliced carrots',15],['All-purpose flour',8],['Baking powder',8],['Real butter powder',2],['Non-fat dried milk',2]],
+      how:'Simmer soup, chicken, veg, and carrots in a skillet. Mix flour, baking powder, butter powder, and reconstituted milk into a drop-biscuit dough, spoon on top, cover until cooked through.' },
+
+    { type:'dinner', name:'Stretched Chicken & Dumplings',
+      blurb:'Turns 8 cans of soup into twice the meals.',
+      ing:[['Chicken and dumplings soup',14],['Canned chicken breast',13],['Chicken broth',14],['All-purpose flour',8],['Baking powder',8]],
+      how:'Thin the soup with broth and add extra chicken. Make flour dumplings with baking powder and water, drop onto a simmer, cover 12–15 minutes.' },
+
+    { type:'dinner', name:'Chicken Alfredo',
+      blurb:'Fastest "real dinner" on the shelf.',
+      ing:[['Pasta',12],['Alfredo sauce',10],['Canned chicken breast',13],['Mushrooms',15],['Parmesan cheese',11]],
+      how:'Boil pasta, warm Alfredo with drained chicken and mushrooms, toss together, finish with Parmesan.' },
+
+    { type:'dinner', name:'Tuna Noodle Casserole',
+      blurb:'Classic, and tuna is your second-biggest stockpile.',
+      ing:[['Tuna',13],['Kraft mac and cheese or pasta',6],['Cream of mushroom soup',14],['Green beans',15],['Cheddar cheese powder',2]],
+      how:'Cook noodles, stir in soup, tuna, and green beans. Dust cheddar powder over the top and bake or simmer until hot.' },
+
+    { type:'dinner', name:'Rotel Chicken Chili',
+      blurb:'Thick, spicy, and nearly all canned.',
+      ing:[['Chili',7],['Black beans',15],['Rotel',10],['Diced tomatoes',10],['Canned chicken breast',13],['Chili powder',1]],
+      how:'Combine everything in one pot and simmer 20 minutes. Adjust heat with chili powder.' },
+
+    { type:'dinner', name:'Teriyaki Chicken Stir-Fry',
+      blurb:'Noodle packs plus crunch on top.',
+      ing:[['Chow mein teriyaki beef noodles',6],['Canned chicken breast',13],['Water chestnuts',15],['Mixed vegetables',15],['Asian-style crunchy noodles',6]],
+      how:'Prepare the noodles per packet, toss in warmed chicken, water chestnuts, and veg. Top with crunchy noodles right before serving.' },
+
+    { type:'dinner', name:'Sloppy Roast Beef',
+      blurb:'Small batch — only 4 cans of roast beef. Served over rice since there are no buns.',
+      ing:[['Sloppy joe sauce',11],['Roast beef',13],['Jasmine rice',12]],
+      how:'Shred roast beef into sloppy joe sauce and simmer. Spoon over rice.' },
+
+    // ---------- Lunches ----------
+    { type:'lunch', name:'Tuna or Chicken Salad',
+      blurb:'No refrigeration needed with the mayo pouches.',
+      ing:[['Tuna or canned chicken',13],['Mayonnaise pouches',11],['Green olives or artichoke hearts',15]],
+      how:'Drain, mix with mayo, and fold in chopped olives or artichoke hearts.' },
+
+    { type:'lunch', name:'Ramen Upgrade',
+      blurb:'Instant ramen, minus the sad.',
+      ing:[['Ramen packs',6],['Dried ramen toppings',6],['Chicken broth',14],['Canned chicken breast',13],['Mushrooms',15]],
+      how:'Use broth instead of plain water, then add chicken, mushrooms, and the dried toppings.' },
+
+    { type:'lunch', name:'Loaded Mac',
+      blurb:'Kraft mac turned into a real meal.',
+      ing:[['Kraft mac and cheese',6],['Canned chicken breast',13],['Rotel',10]],
+      how:'Make the mac per box, stir in drained chicken and a can of Rotel.' },
+
+    // ---------- Breakfasts ----------
+    { type:'breakfast', name:'Pantry Pancakes',
+      blurb:'Full pancakes from powders and shelf-stable staples.',
+      ing:[['All-purpose flour',8],['Whole egg powder',2],['Non-fat dried milk',2],['Baking powder',8],['Maple syrup',11]],
+      how:'Mix flour, egg powder, dried milk, and baking powder, then add water to batter consistency. Griddle and top with maple syrup.' },
+
+    { type:'breakfast', name:'Peanut Butter Oatmeal',
+      blurb:'High-calorie and takes two minutes.',
+      ing:[['Instant oatmeal packets',4],['Peanut butter',5],['Honey',11],['Strawberry jam',5]],
+      how:'Make oatmeal, stir in a spoonful of peanut butter, then finish with honey or jam.' },
+
+    { type:'breakfast', name:'Cereal & Pop-Tart Morning',
+      blurb:'Zero-prep option.',
+      ing:[["Reese's Puffs cereal",4],['Raisin Bran',4],['Non-fat dried milk',2],['Pop-Tarts',7]],
+      how:'Reconstitute dried milk with cold water for cereal. Pop-Tarts for anyone on the move.' },
+
+    // ---------- Sweets ----------
+    { type:'sweet', name:'Tapioca Pudding',
+      blurb:'Stovetop dessert from the pudding mix.',
+      ing:[['Tapioca pudding mix',4],['Non-fat dried milk',2],['White sugar',8],['Vanilla extract',11]],
+      how:'Cook the mix with reconstituted milk and sugar until thickened, then add a splash of vanilla and chill.' },
+
+    { type:'sweet', name:'Peach Crisp',
+      blurb:'Canned peaches with an oat topping.',
+      ing:[['Diced peaches',9],['Rolled oats',4],['Light brown sugar',8],['All-purpose flour',8],['Real butter powder',2]],
+      how:'Layer drained peaches in a dish. Mix oats, brown sugar, flour, and butter powder with a little water into a crumble, spread on top, and bake until golden.' }
+  ];
+
+  const TYPE_LABEL = { dinner:'Dinner', lunch:'Lunch', breakfast:'Breakfast', sweet:'Sweet' };
+  const FILTERS = ['all','dinner','lunch','breakfast','sweet'];
+
+  const grid = document.getElementById('grid');
+  const chipsEl = document.getElementById('chips');
+  const statusEl = document.getElementById('status');
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+
+  let activeType = 'all';
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function highlight(text, q){
+    if(!q) return text;
+    const i = text.toLowerCase().indexOf(q.toLowerCase());
+    if(i === -1) return text;
+    return text.slice(0,i) + '<mark>' + text.slice(i, i+q.length) + '</mark>' + text.slice(i+q.length);
+  }
+
+  function matchesQuery(meal, q){
+    if(!q) return true;
+    const toteMatch = q.match(/^(?:tote\s*|t)?(\d{1,2})$/);
+    if(toteMatch){
+      const n = Number(toteMatch[1]);
+      if(meal.ing.some(([,t]) => t === n)) return true;
+    }
+    if(meal.name.toLowerCase().includes(q)) return true;
+    if(meal.blurb.toLowerCase().includes(q)) return true;
+    return meal.ing.some(([name]) => name.toLowerCase().includes(q));
+  }
+
+  function uniqueTotes(meal){
+    return [...new Set(meal.ing.map(([,t]) => t))].sort((a,b)=>a-b);
+  }
+
+  function render(){
+    const q = searchInput.value.trim().toLowerCase();
+    clearBtn.style.display = q ? 'block' : 'none';
+
+    const visible = MEALS.filter(m =>
+      (activeType === 'all' || m.type === activeType) && matchesQuery(m, q)
+    );
+
+    // highlight text only when it's a text search (not a bare tote number)
+    const hlQuery = /^(?:tote\s*|t)?\d{1,2}$/.test(q) ? '' : q;
+    const toteQuery = (q.match(/^(?:tote\s*|t)?(\d{1,2})$/) || [])[1];
+
+    if(!visible.length){
+      grid.innerHTML = '<div class="empty">No meals match that. Try a different ingredient or clear the filter.</div>';
+    } else {
+      grid.innerHTML = visible.map(m => {
+        const totes = uniqueTotes(m);
+        const ingHtml = m.ing.map(([name, tote]) => `
+          <li>
+            <span class="ing-name">${highlight(name, hlQuery)}</span>
+            <button type="button" class="tote-tag" data-tote="${tote}" title="${TOTE_NAMES[tote]}" aria-label="Tote ${tote}: ${TOTE_NAMES[tote]}">${pad(tote)}</button>
+          </li>`).join('');
+        return `
+          <article class="meal">
+            <div class="meal-lid">
+              <span class="meal-type">${TYPE_LABEL[m.type]}</span>
+              <span class="meal-totes-count">${totes.length} tote${totes.length!==1?'s':''} to open</span>
+            </div>
+            <div class="meal-body">
+              <h2 class="meal-title">${highlight(m.name, hlQuery)}</h2>
+              <p class="meal-blurb">${m.blurb}</p>
+              <ul class="ing-list">${ingHtml}</ul>
+              <div class="method"><b>How</b>${m.how}</div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    const total = MEALS.length;
+    if(q || activeType !== 'all'){
+      const label = toteQuery ? ` using Tote <span class="hit">${pad(Number(toteQuery))}</span> (${TOTE_NAMES[Number(toteQuery)] || 'unknown'})` : '';
+      statusEl.innerHTML = `<span class="hit">${visible.length}</span> of ${total} meals${label}`;
+    } else {
+      statusEl.textContent = `${total} meals`;
+    }
+  }
+
+  function renderChips(){
+    chipsEl.innerHTML = FILTERS.map(f =>
+      `<button type="button" class="chip${f===activeType?' active':''}" data-type="${f}">${f==='all'?'All':TYPE_LABEL[f]}</button>`
+    ).join('');
+  }
+
+  chipsEl.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if(!chip) return;
+    activeType = chip.dataset.type;
+    renderChips();
+    render();
+  });
+
+  grid.addEventListener('click', e => {
+    const tag = e.target.closest('.tote-tag');
+    if(!tag) return;
+    searchInput.value = 'tote ' + tag.dataset.tote;
+    activeType = 'all';
+    renderChips();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  searchInput.addEventListener('input', render);
+  clearBtn.addEventListener('click', () => { searchInput.value=''; render(); searchInput.focus(); });
+
+  // Tote key
+  document.getElementById('keyGrid').innerHTML = Object.entries(TOTE_NAMES).map(([n, name]) =>
+    `<div class="key-row"><span class="tote-tag">${pad(n)}</span><span>${name}</span></div>`
+  ).join('');
+
+  renderChips();
+  render();
+</script>
+</body>
+</html>
