@@ -535,6 +535,56 @@
   .qty-input::-webkit-inner-spin-button,
   .qty-input::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
 
+  .add-item-row{
+    display:flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(168,172,175,0.2);
+  }
+  .add-item-input{
+    background: var(--olive);
+    border: 1px solid rgba(168,172,175,0.35);
+    border-radius: 2px;
+    color: var(--bone);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    padding: 8px 10px;
+  }
+  .add-item-input.name{ flex:1; min-width:0; }
+  .add-item-input.qty{ width: 60px; text-align:center; }
+  .add-item-input::-webkit-inner-spin-button,
+  .add-item-input::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
+  .add-item-btn{
+    background: var(--amber);
+    color: var(--tote-black-deep);
+    border: none;
+    border-radius: 2px;
+    padding: 0 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+    flex-shrink: 0;
+  }
+  .add-item-btn:hover{ filter: brightness(1.1); }
+  .add-item-btn:active{ transform: scale(0.97); }
+
+  .item-remove{
+    background: none;
+    border: none;
+    color: var(--quartz);
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 2px 4px;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+  .item-remove:hover{ color: var(--rust); }
+
   .qty-note{
     max-width: 1100px;
     margin: -8px auto 14px;
@@ -644,6 +694,11 @@
         <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
       </div>
       <ul class="item-list" id="modalItems"></ul>
+      <div class="add-item-row">
+        <input type="text" id="addItemName" class="add-item-input name" placeholder="Add item…" autocomplete="off">
+        <input type="number" id="addItemQty" class="add-item-input qty" min="0" value="1" aria-label="Quantity">
+        <button type="button" id="addItemBtn" class="add-item-btn">+ Add</button>
+      </div>
       <div class="modal-footer">
         <span id="modalCount"></span>
         <span id="modalPos"></span>
@@ -814,7 +869,7 @@
         <div class="tote-body">
           <div class="tote-title">${t.title}</div>
           <div class="tote-meta">
-            <span>${t.items.length} lines</span>
+            <span id="lineCount-${t.id}">${t.items.length} lines</span>
           </div>
           <div class="depleted-flag" id="flag-${t.id}">⚠ <span></span> at zero</div>
         </div>
@@ -849,20 +904,30 @@
 
   // ---------- Quantity tracking (local cache + cloud sync) ----------
   const QTY_KEY = 'toteManifestQty_v1';
+  const CUSTOM_KEY = 'toteManifestCustom_v1';
 
   function loadQtyState(){
     try{ return JSON.parse(localStorage.getItem(QTY_KEY) || '{}'); }
+    catch(e){ return {}; }
+  }
+  function loadCustomState(){
+    try{ return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '{}'); }
     catch(e){ return {}; }
   }
   function saveLocalQtyState(){
     try{ localStorage.setItem(QTY_KEY, JSON.stringify(qtyState)); }
     catch(e){ /* storage unavailable — falls back to cloud only, when connected */ }
   }
+  function saveLocalCustomState(){
+    try{ localStorage.setItem(CUSTOM_KEY, JSON.stringify(customItemsState)); }
+    catch(e){ /* storage unavailable — falls back to cloud only, when connected */ }
+  }
   function saveQtyState(){
     saveLocalQtyState();
+    saveLocalCustomState();
     if(!cloudReady) return;
     setSyncStatus('syncing');
-    setDoc(qtyDocRef, { counts: qtyState, updatedAt: Date.now() })
+    setDoc(qtyDocRef, { counts: qtyState, custom: customItemsState, updatedAt: Date.now() })
       .then(()=> setSyncStatus('synced'))
       .catch(()=> setSyncStatus('offline'));
   }
@@ -880,14 +945,16 @@
   }
 
   function refreshAllUI(){
-    TOTES.forEach(t=>updateCardFlag(t.id));
+    TOTES.forEach(t=>{ updateCardFlag(t.id); updateCardLineCount(t.id); });
     if(currentToteId!==null){
       const t = TOTES.find(x=>x.id===currentToteId);
       renderModalItems(t, searchInput.value.trim());
+      modalCount.textContent = `${t.items.length + customList(t.id).length} item lines`;
     }
   }
 
   let qtyState = loadQtyState();
+  let customItemsState = loadCustomState(); // { "<toteId>": [ {id, name} ] }
   let currentToteId = null;
 
   function qtyKey(toteId, idx){ return toteId + '-' + idx; }
@@ -900,12 +967,47 @@
     saveQtyState();
   }
 
+  function customList(toteId){ return customItemsState[toteId] || []; }
+
+  function addCustomItem(toteId, name, qty){
+    name = (name || '').trim();
+    if(!name) return false;
+    qty = Math.max(0, parseInt(qty, 10) || 0);
+    const id = 'c' + Date.now() + Math.floor(Math.random()*1000);
+    if(!customItemsState[toteId]) customItemsState[toteId] = [];
+    customItemsState[toteId].push({ id, name });
+    qtyState[qtyKey(toteId, id)] = qty;
+    saveQtyState();
+    updateCardFlag(toteId);
+    updateCardLineCount(toteId);
+    return true;
+  }
+
+  function removeCustomItem(toteId, id){
+    customItemsState[toteId] = customList(toteId).filter(ci=>ci.id!==id);
+    delete qtyState[qtyKey(toteId, id)];
+    saveQtyState();
+    updateCardFlag(toteId);
+    updateCardLineCount(toteId);
+  }
+
+  function updateCardLineCount(toteId){
+    const t = TOTES.find(x=>x.id===toteId);
+    if(!t) return;
+    const el = document.getElementById('lineCount-'+toteId);
+    if(!el) return;
+    el.textContent = `${t.items.length + customList(toteId).length} lines`;
+  }
+
   function updateCardFlag(toteId){
     const t = TOTES.find(x=>x.id===toteId);
     if(!t) return;
     let depleted = 0;
     t.items.forEach((item, i)=>{
       if(getQty(t.id, i, item.qty) <= 0) depleted++;
+    });
+    customList(toteId).forEach(ci=>{
+      if(getQty(t.id, ci.id, 0) <= 0) depleted++;
     });
     const flag = document.getElementById('flag-'+toteId);
     if(!flag) return;
@@ -918,7 +1020,7 @@
   }
 
   function renderModalItems(t, query){
-    modalItems.innerHTML = t.items.map((item, i)=>{
+    const staticHtml = t.items.map((item, i)=>{
       const cur = getQty(t.id, i, item.qty);
       return `<li data-idx="${i}"${cur<=0?' class="depleted"':''}>
         <span class="item-text">${highlight(item.name, query)}</span>
@@ -929,15 +1031,43 @@
         </span>
       </li>`;
     }).join('');
+
+    const customHtml = customList(t.id).map(ci=>{
+      const cur = getQty(t.id, ci.id, 0);
+      return `<li data-idx="${ci.id}" data-custom="1"${cur<=0?' class="depleted"':''}>
+        <span class="item-text">${highlight(ci.name, query)}</span>
+        <span class="qty-control">
+          <button type="button" class="qty-btn minus" aria-label="Decrease quantity">−</button>
+          <input type="number" min="0" class="qty-input" value="${cur}" aria-label="Quantity on hand">
+          <button type="button" class="qty-btn plus" aria-label="Increase quantity">+</button>
+          <button type="button" class="item-remove" aria-label="Remove item" title="Remove item">✕</button>
+        </span>
+      </li>`;
+    }).join('');
+
+    modalItems.innerHTML = staticHtml + customHtml;
   }
 
   modalItems.addEventListener('click', (e)=>{
-    const btn = e.target.closest('.qty-btn');
-    if(!btn || currentToteId===null) return;
-    const li = btn.closest('li');
-    const idx = Number(li.dataset.idx);
+    if(currentToteId===null) return;
     const t = TOTES.find(x=>x.id===currentToteId);
-    let cur = getQty(t.id, idx, t.items[idx].qty);
+
+    const removeBtn = e.target.closest('.item-remove');
+    if(removeBtn){
+      const li = removeBtn.closest('li');
+      removeCustomItem(t.id, li.dataset.idx);
+      renderModalItems(t, searchInput.value.trim());
+      modalCount.textContent = `${t.items.length + customList(t.id).length} item lines`;
+      return;
+    }
+
+    const btn = e.target.closest('.qty-btn');
+    if(!btn) return;
+    const li = btn.closest('li');
+    const isCustom = li.dataset.custom==='1';
+    const idx = isCustom ? li.dataset.idx : Number(li.dataset.idx);
+    const fallback = isCustom ? 0 : t.items[idx].qty;
+    let cur = getQty(t.id, idx, fallback);
     cur = btn.classList.contains('plus') ? cur + 1 : Math.max(0, cur - 1);
     setQty(t.id, idx, cur);
     li.querySelector('.qty-input').value = cur;
@@ -948,7 +1078,8 @@
   modalItems.addEventListener('change', (e)=>{
     if(!e.target.classList.contains('qty-input') || currentToteId===null) return;
     const li = e.target.closest('li');
-    const idx = Number(li.dataset.idx);
+    const isCustom = li.dataset.custom==='1';
+    const idx = isCustom ? li.dataset.idx : Number(li.dataset.idx);
     const t = TOTES.find(x=>x.id===currentToteId);
     let val = parseInt(e.target.value, 10);
     if(isNaN(val) || val < 0) val = 0;
@@ -958,9 +1089,35 @@
     updateCardFlag(t.id);
   });
 
+  const addItemName = document.getElementById('addItemName');
+  const addItemQty = document.getElementById('addItemQty');
+  const addItemBtn = document.getElementById('addItemBtn');
+
+  function submitAddItem(){
+    if(currentToteId===null) return;
+    if(!addCustomItem(currentToteId, addItemName.value, addItemQty.value)){
+      addItemName.focus();
+      return;
+    }
+    addItemName.value = '';
+    addItemQty.value = '1';
+    const t = TOTES.find(x=>x.id===currentToteId);
+    renderModalItems(t, searchInput.value.trim());
+    modalCount.textContent = `${t.items.length + customList(t.id).length} item lines`;
+    addItemName.focus();
+    modalItems.scrollTop = modalItems.scrollHeight;
+  }
+  addItemBtn.addEventListener('click', submitAddItem);
+  [addItemName, addItemQty].forEach(input=>{
+    input.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ e.preventDefault(); submitAddItem(); }
+    });
+  });
+
   document.getElementById('resetLink').addEventListener('click', ()=>{
-    if(!confirm('Reset all tote quantities back to their original counts? This resets on every synced device.')) return;
+    if(!confirm('Reset all tote quantities back to their original counts? This also removes any items added later, on every synced device.')) return;
     qtyState = {};
+    customItemsState = {};
     saveQtyState();
     refreshAllUI();
   });
@@ -982,7 +1139,7 @@
     modalTier.textContent = meta.tierLabel + ' load';
     modalTier.className = 'modal-tier tier ' + meta.tier;
     renderModalItems(t, query);
-    modalCount.textContent = `${t.items.length} item lines`;
+    modalCount.textContent = `${t.items.length + customList(t.id).length} item lines`;
     modalPos.textContent = `Row ${t.row} of 4`;
 
     setTimeout(()=> overlay.classList.add('open'), cardEl ? 90 : 0);
@@ -1015,12 +1172,13 @@
       const idStr = `tote ${t.id}`;
       const titleHit = t.title.toLowerCase().includes(q) || idStr.includes(q);
       const itemHits = t.items.filter(i=>i.name.toLowerCase().includes(q));
-      const isMatch = titleHit || itemHits.length>0;
+      const customHits = customList(t.id).filter(ci=>ci.name.toLowerCase().includes(q));
+      const isMatch = titleHit || itemHits.length>0 || customHits.length>0;
 
       card.classList.toggle('match', isMatch);
       card.classList.toggle('dim', !isMatch);
 
-      if(isMatch){ toteMatches++; lineMatches += itemHits.length; }
+      if(isMatch){ toteMatches++; lineMatches += itemHits.length + customHits.length; }
     });
 
     searchStatus.innerHTML = toteMatches
@@ -1031,8 +1189,8 @@
   searchInput.addEventListener('input', runSearch);
   clearBtn.addEventListener('click', ()=>{ searchInput.value=''; runSearch(); searchInput.focus(); });
 
-  // Reflect any saved quantity counts on the rack view as soon as the page loads
-  TOTES.forEach(t=>updateCardFlag(t.id));
+  // Reflect any saved quantity counts and added items on the rack view as soon as the page loads
+  TOTES.forEach(t=>{ updateCardFlag(t.id); updateCardLineCount(t.id); });
 
   // ---------- Cloud sync ----------
   setSyncStatus('offline');
@@ -1043,13 +1201,16 @@
 
     onSnapshot(qtyDocRef, (snap)=>{
       if(snap.exists()){
-        qtyState = snap.data().counts || {};
+        const data = snap.data();
+        qtyState = data.counts || {};
+        customItemsState = data.custom || {};
         saveLocalQtyState();
+        saveLocalCustomState();
         refreshAllUI();
         setSyncStatus('synced');
       } else {
         // No cloud record yet on this project — seed it with whatever's cached locally
-        setDoc(qtyDocRef, { counts: qtyState, updatedAt: Date.now() })
+        setDoc(qtyDocRef, { counts: qtyState, custom: customItemsState, updatedAt: Date.now() })
           .then(()=> setSyncStatus('synced'))
           .catch(()=> setSyncStatus('offline'));
       }
